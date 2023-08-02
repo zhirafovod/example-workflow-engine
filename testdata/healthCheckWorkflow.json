@@ -1,0 +1,117 @@
+{
+  "id": "healthCheckWorkflow",
+  "version": "1.0",
+  "name": "Health Check Workflow",
+  "states": [
+    {
+      "name": "HealthRuleAlert",
+      "type": "event",
+      "onEvents": [
+        {
+          "eventRefs": ["HealthAlertEvent"]
+        }
+      ],
+      "transition": "CreateServiceNowChange"
+    },
+    {
+      "name": "CreateServiceNowChange",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": {
+            "refName": "createChangeReqFn",
+            "arguments": {}
+          }
+        }
+      ],
+      "transition": "WaitForApproval"
+    },
+    {
+      "name": "WaitForApproval",
+      "type": "event",
+      "onEvents": [
+        {
+          "eventRefs": ["ApprovalEvent"]
+        }
+      ],
+      "stateTimeout": "PT15M",
+      "onTimeout": {
+        "transition": "EscalateAlert"
+      },
+      "transition": "PerformRemediation"
+    },
+    {
+      "name": "PerformRemediation",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": {
+            "refName": "remediationFn",
+            "arguments": {}
+          }
+        }
+      ],
+      "transition": "SendStatusEmail"
+    },
+    {
+      "name": "SendStatusEmail",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": {
+            "refName": "emailStatusFn",
+            "arguments": {
+              "email": "<email_address>"
+            }
+          }
+        }
+      ],
+      "end": true
+    },
+    {
+      "name": "EscalateAlert",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": {
+            "refName": "escalateAlertFn",
+            "arguments": {}
+          }
+        }
+      ],
+      "transition": "SendStatusEmail"
+    }
+  ],
+  "events": [
+    {
+      "name": "HealthAlertEvent",
+      "type": "com.example.health.alert",
+      "source": "/zodiac/health/rule/alert",
+      "kind": "consumed"
+    },
+    {
+      "name": "ApprovalEvent",
+      "type": "com.example.approval",
+      "source": "/zodiac/approval",
+      "kind": "consumed"
+    }
+  ],
+  "functions": [
+    {
+      "name": "createChangeReqFn",
+      "operation": "zodiac/createChange"
+    },
+    {
+      "name": "remediationFn",
+      "operation": "zodiac/remediation"
+    },
+    {
+      "name": "emailStatusFn",
+      "operation": "zodiac/emailStatus"
+    },
+    {
+      "name": "escalateAlertFn",
+      "operation": "zodiac/escalateAlert"
+    }
+  ]
+}

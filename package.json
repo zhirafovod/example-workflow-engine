@@ -1,0 +1,21 @@
+{
+  "name": "serverless-workflows-multi-tenant",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dispatcher.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cloudevents": "^8.0.0",
+    "jest": "^29.6.2",
+    "kafka-node": "^5.0.0",
+    "pulsar-client": "^1.9.0"
+  }
+}
